@@ -1,0 +1,183 @@
+- Cấu trúc data như thế nào là "chuẩn" để làm Pivot Table?
+Nhớ lại cấu trúc ở bài tập học SumIF, CountIF --> cấu trúc Tablbular
+01. ProperData.xlsx
+
+- Những lý do khiến chúng ta cần tới Power Query
+1. File size
+Mô hình của chúng ta:
+(1) Source (Raw Data) > (2) Power Query > (3) Report
+chúng ta không cần tạo 1 bản sao dữ liệu lên trên Report
+2. Giữ cho Source data của chúng ta riêng lẻ, tách rời khỏi report
+Bởi vì như vậy sẽ dễ dàng update data hơn, report sẽ gọn gàng hơn. Khi dữ data càng lớn, việc trữ dữ liệu bên trong report sẽ làm mọi thứ chậm chạm hơn.
+3. Data có thể được transform trước
+Chúng ta có thể nhận data từ rất nhiều nguồn (web, local workbook, csv file, Access database, SQL...) và không phải thông tin nào (field = columns) chúng ta cũng cần.
+Hoặc cấu trúc data trong database đó không như chúng ta mong đợi.
+4. Đôi khi chúng ta cũng cần gộp (combine) chúng lại nữa.
+5. Theo dõi step by step, những biến đổi dữ liệu mà chúng ta đã làm (log)
+Để tháng sau, khi chúng ta làm lại report này, chúng ta sẽ cần nhớ lại tháng trước chúng ta đã làm nó như thế nào.
+6. Và cuối cùng, là chúng ta có thể tự động hóa chúng (Automate entire process)!
+
+- Bước đầu tiên, chúng ta sẽ học cách Transform cơ bản.
+02. SalesReport_Part1.xlsx
+02. InvoiceData.xlsx
+Data > Query Connection
+Edit query (double click)
+Nhìn vào list bên phải, chọn Source để thay đổi nguồn dữ liệu
+Chọn lại dữ liệu là file 02. InvoiceData.xlsx
+Một khi chúng ta đã delete các step thì không thể UNDO (Ctrl Z) được nữa.
+Database cần header, nếu Query nhận không đúng header chúng ta cần chọn lại: "Use first row as headers".
+Có 2 menu cần lưu ý:
+(1) là Transfrom: là biến đổi dữ liệu trực tiếp từ Columns đang thao tác
+(2) là Add Column: nghĩa là để lại column gốc và tạo thêm 1 cột kết quả mới.
+Giả sử cần tách cột Invoice-Customer-transaction ra làm 3 cột:
+menu 1 (transform): Split column by Positions > delimiter là " - ", each occurrence of the delimiter (nghĩa là bất cứ có dấu phân tách nào thì cứ tách)
+Đổi tên header: click vào và gõ lại tên mới
+Chọn nhiều cột: nhấn giữ Ctrl để chọn riêng lẻ, và nhấn Shift để chọn nhiều cột liên tiếp nhau.
+Xóa cột không dùng tới: nhấn Delete hoặc Remove
+Giả sử ta cần làm phép tính nhân Sales Amount = Quantity * UnitPrice
+menu 2 (Add column) ta chọn 2 cột Quantity, UnitPrice, menu Add column và chọn Standard > Multiply (nhân)
+Change type: Sales Amount thành Currency (2 decimals - tối đa 4)
+Load & Load
+Pivot Table: thống kê Sales Amount theo từng Customer ID, theo từng Năm
+
+- Những tính năng View nâng cao - giúp ích khi nhìn tổng thể BigData
+(1) View > Column Profile: khi click vào cột nào, sẽ thống kê cơ bản Count, Error, Empty, Distinct, Unique, NaN, Zero, Min, Max, Average & Value Distribution (column chart)
+Lưu ý có chế độ chọn: colum profiling based on: top 1.000 rows / entire data set.
+(2) View > Column distribution: thêm 1 column chart để thể hiện sự phân bổ dữ liệu trong cột, như tính năng (1)
+(3) View > Column Quality: thêm 1 cửa sổ để thể hiện:
+Valid : ô chứa thông tin có thể dùng (Text, Number)
+Error: ô chứ lỗi
+Empty: ô bị trống
+(Ứng với màu sắc sẽ thể hiện bar chart nhỏ)
+(4) View > Monospaced: hiện các ký tự có kích thước bằng nhau, để dễ nhìn và so sánh các nhóm Mã (ID code)
+
+- Vấn đề refesh Pivot table và refesh Power Query
+Chọn Queries > Data > Properties:
+Tự động cập nhật liên tục: Refesh every 10 minutes?
+Tự động cập nhật khi mở file: Refesh data when opeining the file
+Điều này thật sự cần thiết nếu chúng ta làm Dashboard và theo dõi liên tục.
+
+- Bắt đầu Import CSV và Extract text
+03. SalesReport_Part4.xlsx
+Bắt đầu Import file customer master vào trong file sale report
+03. CustomerMaster.txt
+
+Mục tiêu là tạo ra 1 bảng danh sách Customer có thêm cột CustomerGroup (đại diện cho Nhóm Customer có nhiều chi nhánh)
+(1) Đặt tên Query: CustomerMaster
+(2) Filter:
+CustomerName = "Tailspin..."
+CustomerCategoryName = "Novelty Shop"
+trong bài chỉ filter mẫu, ko cần filter
+(3) Add column > Extract > Text Before delimiter ( để tách GroupName
+(4) Đặt lại tên là GroupCustomer
+(5) Xóa những cột không cần dùng tới (như địa chỉ, website, người liên hệ,...)
+(6) Load to: only create connection
+
+- Merge queries (giống như Vlookup, tương tự tính năng hàm DAX Related() trong Data model)
+Tiếp theo, sử dụng tiếp data của 03. mà làm tiếp việc nối dữ liệu.
+Mục đích của chúng ta là cần thay thế CustomerID thành CustomerName, hoặc CustomerGroup để tính toán Sum of Sales Amount.
+
+Query: SalesReport có lỗi thì chỉnh source lại về 02. InvoiceData.xlsx
+Khi Merge cần xác định:
+- Home > Merge Queries:
+(1) Merge Queries: sẽ merge lên Query hiện tại, tương tự như cách dùng hàm Vlookup()
+(2) Merge Queries as New: sẽ Merge và đưa kết quả thành 1 Query mới.
+
+Ở giao diện, chọn 2 cột có mã tương tự nhau (khóa ngoại)
+Join Kind:
+(1) Left Outer (Vlookup là left join)
+(2) Right Outer
+(3) Full Outer
+(4) Inner
+
+Sau khi Merge xong, chọn cột "CustomerMaster" - sau đó Expand các cột cần hiện ra:
+(1) Chọn cột cần expand
+(2) Gỡ check ô "Use original column name as prefix"
+
+Nếu có lỡ tay merge nhầm cột, có thể quay trở lại (nhìn vào dấu * ở bảng Applied Steps) và chọn lại đúng cột.
+Trở lại Pivot Table, và thể hiện CustomerName và CustomerGroup.
+
+- Nhập liệu từ Table
+04. DataFromExcel.xlsx
+Từ data frame > Ctrl T > đặt tên cho Table
+Import from Table
+
+Ví dụ, tách màu trong description ra thành 1 cột riêng.
+- Change type: Date > replace current type
+- Add column: extract > text between delimiters > Start ) and End (
+- Tranform > Capitalize Each Word > Load to Table or Only create connection
+
+- Biến đổi un-tabular sang tabular format
+04. DataFromExcel.xlsx
+(1) Đặt tên table
+(2) Import Query
+(3) Remove top row
+(3) Use first row as header
+(4) Đổi tên cột: Type - Snack - Quantity - Revenue
+(5) Điền full thông tin cột Type: fill Down
+
+- Thay đổi đường dẫn file (file path)
+Giả sử sửa lại đường dẫn (thêm số 1 sau tên folder)
+Vào lại edit Query > Chỉnh lại source (Step đầu tiên)
+
+- Data Type trong Query:
+tương tự như Excel, trong Query cũng có:
+(1) Decimal Number: tối đa 15 digits
+(2) Currency: tối đa 4 digits
+(3) Whole Number: Integer
+(4) Percentage
+(5) Date / Time: cả ngày và giờ
+(6) Date: chỉ có ngày
+(7) Time: chỉ có giờ
+(8) Date/Time/Timezone: UTC date/time, hơi dài, không cần thiết
+(9) Duration: Decimal nhưng hiển thị ở dạng Time, hiển thị thời gian
+(10) Text: mọi thứ quy về text
+(11) True/False: boolean
+(12) Binary: lưu trữ nhị phân (ko cần quan tâm)
+(13) Using Locale: cần quan tâm nhất
+Như Number và Currency theo kiểu Việt Nam (. cho hàng ngàn, và , cho thập phân)
+Như Date theo kiểu dd/mm/yyyy của Việt Nam,
+
+- Tìm và loại bỏ lỗi trong data
+Để nhìn được vừa Query vừa Excel,
+ấn Windows > gõ Excel > Nhấn đè ALT và chonh Excel
+
+05. PQTips.xlsx
+Chọn sheet đầu tiên, Import vào Query
+(1) delete other columns, chỉ giữ lại 2 cột Date và Sales Amount
+(2) change type cho phù hợp
+Load to Table
+(3) Thêm data bất kỳ vào table data gốc, table Query sẽ sinh ra lỗi
+(4) Muốn tìm ra lỗi ở đâu thì kiểm tra trong danh sách Query & Connection: sẽ thấy số lượng lỗi, ví dụ 2 errors (tạo ra 1 bản sao Query và đã filter hết các data ko bị lỗi)
+
+(5) muốn tìm chính xác nó ở đâu trong Query: Home > Keep row > keep eror
+(6) muốn loại bỏ ô lỗi: Home > remove row > remove error
+(7) nếu không muốn loại bổ ô lỗi mà thay thế thành giá trị khác: transform > replace value > replace error (thay thành số 0 chẳng hạn)
+
+- Tạo bản sao các Query:
+Khi dùng chung 1 nguồn data mà chúng ta lại muốn Query theo nhiều cách khác nhau, chúng ta có thể tận dụng các query đã làm trước đó:
+(1) Duplicate Query: nhân đôi tại thời điểm thao tác. 2 Queries sẽ hoạt động độc lập.
+hay 
+(2) Reference Query: từ vị trí step cuối cùng của bản Query gốc, tạo ra bản copy thành Query mới. 2 Queries sẽ hoạt động có liên hệ lẫn nhau.
+06. QueryManagement.xlsx
+yêu cầu:
+(1) tạo 1 Query chỉ lấy các cột: Date - customer name - Descirption - Sales Amount
+(2) Tạo 1 bản sao Duplicate, và filter Customer "Edson"
+Filter > Text filter > contains: "Edson"
+(3) Tạo 1 bản sao bằng cách Reference từ bảng gốc, filter customer "Werner"
+
+- Nhìn mối quan hệ giữa các Query với nhau:
+View > Query Dependencies
+
+- Các Query tạo dư, tạo sai, có thể delete chúng đi,
+
+- Muốn copy Query đã tạo sang 1 file excel mới:
+(1) Cách 1 là copy và paste (ở giao diện Data > Query & connection)
+Nhưng cách này có thể sẽ lỗi do không tìm thấy data import vào do khác nguồn nhau. > Edit Query và chỉnh lại Source.
+(2) Xuất query ra dạng file .odc
+Chuột phải > Export Connection file...
+Ở file nhập Query vào, chọn Data > Existing Connections > tìm tới thu mục chứa file .odc ban nãy và open vào.
+
+- Các Query cũng nên cần được Nhóm lại cho dễ quản lý:
+chọn các Query và "Move to group"
+hoặc bỏ nhóm, "Ungroup"

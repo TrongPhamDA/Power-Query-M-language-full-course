@@ -1,0 +1,158 @@
+BÀI TẬP 31: GROUP theo điều kiện IF
+31. Buckets_Conditions_GroupBy.xlsx
+Yêu cầu:
+
+(1) Nhóm các nhân viên theo 4 group theo mức lương:
+Low: <30k
+Average: 30k - 50k
+Moderate: 50k - 90k
+High: >= 90k
+
+Làm: Add Column > Conditional Column
+If      Salary is less than 30000 Then Low
+Else If Salary is less than 50000 Then Average
+Else If Salary is less than 90000 Then Moderate
+Else High
+
+(2) Tổng hợp: Số lượng Employee và Mức lương trung bình, Group theo từng Department.
+Các phép thống kê bao gồm:
+- Sum
+- Count
+- Count Distinct
+- Average
+- Median
+- Max
+- Min
+
+Làm:
+- Transfrom > Group by:
+Department
+Group
+New Column name Operation  Column
+Employee  	Count Rows
+Ave Salary	Average    Salary
+
+--------------------------------------
+BÀI TẬP: 32 UN-PIVOT và PIVOT
+32. UnPivot_Pivot.xlsx
+
+Yêu cầu:
+(1) Un-Pivot
+- Removed Bottom Rows
+- Replace null value to 0
+- Chọn Product/Sales và Unpivot Other Columns
+- Change Type cuối cùng.
+
+Sau đó thêm data tháng 7 vào?
+Sau đó thử đổi tên tháng 9 vào?
+
+Nếu gặp lỗi thì nên sửa code:
+- Replace null value to 0
+Table.ColumnNames(#"Removed Bottom Row") nghĩa là lấy các column name ở bước kế trước bỏ vào.
+
+(2) Nghịch đảo lại là PIVOT
+- Loại bỏ cột Color
+- Chọt cột cần làm Pivot (Month)
+- Values Column: Sales
+  Aggregate value function: SUM (hoặc Don't aggregate tùy trường hợp)
+
+
+--------------------------------------
+BÀI TẬP: 33 SPLIT with DElIMITER (line feed = new line = return = dấu xuống dòng)
+
+Yêu cầu:
+(1) Tách các màu sắc ra thành từng dòng
+(2) Đếm xem mỗi Product có bao nhiêu màu?
+
+Làm:
+(1) Dấu xuống dòng (khi ấn Enter) được Power Query quy định là #(lf)
+Split Column by Delimiter:
+Select or enter delimiter > Custom > #(lf)
+Split at > Each occurrence of the delimiter
+Split to > Rows
+Check: Split using special character
+Lưu ý vẫn còn các dòng Null > Filter not Null
+Lưu ý trường hợp Upper case / Lower case trước khi Count > Transform Capitalize
+
+(2) Cuối cùng Group by và chọn:
+- Count Row nếu muốn đếm có bao nhiêu dòng dữ liệu
+- Distinct Count nếu muốn đếm thật sự có bao nhiêu màu
+
+-----------------------------------------
+BÀI TẬP 34: SUMMARIZE SALES BY STATE (Map Chart, Heat Map)
+34. Customer_Sales_Data.csv
+Yêu cầu:
+(1) Thống kê mỗi Bang (State) bán được bao nhiêu: cột State, cột Total Sales
+(2) Visual ra bản đồ kèm heatmap 3 màu đỏ > vàng > xanh
+
+Làm:
+(1) Import csv
+- Transform > Extract (State): Text between Delimiters >( và )
+- Đổi tên thành State
+- Group by: State & Sum by Sales as Total Sales
+- Load to Table
+(2) Insert > Maps > Field Map
+Ctrl 1 để điều chỉnh
+
+-------------------------------------------------
+BÀI TẬP 35: DATE TRANSFORM
+35. DateTransformations.xlsx
+
+Yêu cầu:
+(1) Từ 3 cột Year, Month, Day tạo thành 1 cột Date
+(2) Thống kê mỗi tháng - mỗi tuần có bao nhiêu sinh nhật của nhân viên
+
+
+Làm:
+(1) Sắp xếp (Order) 3 cột này lại theo thứ tự Năm > Tháng > Ngày (vì thứ tự này được chấp nhận chung)
+Sau đó Transform > Merge Column > by Delimiter comma (dấu , hoặc dấu / cũng được)
+Change Type sang DATE
+
+(2) làm theo thứ tự:
+- Import
+- Remove Other columns (giữ lại Name, Birthday)
+- Tạo cột Age: Chọn cột Birthday > Add Column > Date > Age > Transform > Duration > Total Years > Rounding > Round Down
+- Birthday this year: Add Column > custom column
+= Date.AddYears([Birth Date], [Age])
+- Tạo cột Birthday Month: chọn cột Birthday this year > Add column > Date > Month > Name of Month
+- Tạo cột Week: chọn cột Birthday this year > Add column > Date > Week > Week of Year
+hoặc Add Column > custom column
+= Date.WeekOfYear([Birthday this year])
+- Group by Birthday Month và Week, Count Row
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

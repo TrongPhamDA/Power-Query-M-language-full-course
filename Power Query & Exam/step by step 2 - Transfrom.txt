@@ -1,0 +1,157 @@
+BÀI TẬP 21: TÁCH CHỮ
+21. TransformText.xlsx
+
+Yêu cầu:
+- Tách Department / Position
+- Tách Full Name ra thành First Name và Last Name
+- Ở Unique Code, tách phần số ở giữa chuỗi ra, sau đó gắn tiền tố "E-" vào mã, ví dụ "E-70"
+
+Làm:
+- Tách  Department / Postition: (1) Transfrom > Spit Columns > by delimiter (2) Transfrom > Format > Trim
+Hoặc có thể chỉnh lại delimiter thành " / " thay vì chỉ gõ "/"
+- Tách code: Tách 2 lần, (1) Transfrom > Split column > by Non-digit to Digit (chữ trước, số sau), lần (2) Transfrom > Split column > by Digit to Non-Digit (số trước, chữ sau). Cuối cùng là thêm tiền tố "E-" vào, Transfrom > Format > Add Prefix (tiền tố) và điền "E-" vào.
+- Tách Họ tên: chuyển sang menu Add column:
+(1) Extract > Text before delimiter: First Name
+(2) Extract > Text after delimiter > Advnaced options: From the end of the input : Last Name
+- Cuối cùng là đặt lại tên field và Capitalize (Title) các name.
+- Thêm data cuối cùng vào Table, refesh all để xem kết quả.
+
+--------------------------------------------------------------
+
+BÀI TẬP 22: GỘP CỘT (MERGING COLUMNS)
+22. MergeColumns.xlsx
+
+Yêu cầu: Gộp 3 cột thành 1 cột FullName
+
+Làm:
+- Sắp xếp lại thứ tự cột (từ trái sang phải: First - Middle - Last name)
+- Chọn 3 cột > Transfrom > Merge columns > by Space
+Làm như vậy sẽ tạo ra 2 khoảng trắng giữa các cột (khi không có Middle name, tương tự " "&" " trong Excel)
+- Cho nên chuyển sang menu Add columns > Merge Columns > by Space (Add columns sẽ bỏ qua những ô trống - tương tự hàm TEXTJOIN(" ", TRUE)
+- Chưa xong đâu, Middle Name chỉ cần lấy 1 ký tự làm đại diện và có thêm dấu .
+ví dụ Nate > N.
+Trở lại cột Middle > Transform > Extract > First Character
+tiếp tục Format > Upper case
+tiếp tục Format > Suffix (hậu tố) và gõ dấu .
+- Thêm data sau cùng vào bảng và Refesh all
+
+-------------------------------------------------------------------
+BÀI TẬP 23: FILL DOWN  & LOẠI BỔ GIÁ TRỊ TRỐNG > chuyển thành Proper Data
+cần phân biệt NULL value và Empty String
+23. FillReplace.xlsx
+
+Yêu cầu:
+- Đổi tên Query thành ProperData
+- Điền Department - Position vào các ô trống bên dưới, biết là những ô có thông tin là ô đại diện cho những ô bên dưới.
+
+Làm:
+- Chọn 2 cột department, Position, Transform > Fill > Down
+Những ô null sẽ được điền từ trên xuống (như cách chúng ta bấm Ctrl D vậy)
+- Tuy nhiên lại sẽ có giá trị trống "" (empty string, do chúng ta dùng "" trong Excel), và vì nó không phải null nên sẽ không thể fill down.
+- Transform > Reaplace Value > from "space" to "null" (gõ dấu cách)
+và Fill Down 1 lần nữa.
+- Có thể thử replace value "Analyst" thành "Expert" xem sao.
+- Và cuối cùng, nhớ Capitalize
+- Ra ngoài và Pivot Tổng Salary theo các Department
+
+-------------------------------------------------------------------
+BÀI TẬP 24: SORT DATA
+24. Sort_RemoveDuplicate.xlsx
+- Cột nào level cao hơn thì sort trước, ví dụ: Department rồi mới tới Position > First Name
+- Nếu muốn giữ lại thứ tự Sort ban đầu (chưa sort lần nào) thì nên thêm cột Index (Add column > Index column)
+- Yêu cầu Sort là yêu cầu không cần thiết khi làm việc với BigData.
+
+REMOVE DUPLICATE:
+yêu cầu:
+- Tạo Unique list cho Department
+- Tạo Unique list cho Department & Position
+Làm:
+- Cần lưu ý, Power Query phân biệt chữ in hoa và in thường (Upper case và Lower Case và Captitalize)
+- Duplicate Query
+- Chọn 2 cột Department và Position cùng lúc, rồi remove duplicate > captitalize > Remove duplicate > Sort
+- Replace value "Md" thành "MD"
+
+-------------------------------------------------------------------
+BÀI TẬP 25: NUMBER FORMAT
+25. NumberTransformation.xlsx
+yêu cầu:
+(1) Tính tổng Current Salary
+(2) Tính tổng Bonus Amount
+(3) Tính Maximum Compensation - tổng tiền được hưởng
+(4) Lấy ra danh sách TOP 20 nhân sự dựa trên Maximum Compensation
+
+Làm:
+(0) Làm thế nào để cộng 2 cột lại với nhau:
+chọn 2 cột Starting + Increase Up to Current Year > Add Column > Standart > Add
+sẽ tạo ra cột tổng 2 cột này.
+Chúng ta đã thấy gì chưa?
+- Nếu Null có trong phép cộng > kết quả cũng sẽ ra Null.
+Khắc phục, replace value null thành 0 và làm lại thao tác Add.
+- Một cách khác, đó là sửa M language lại:
+each List.Sum({ ... , ... })
+nghĩa là thêm List.Sum({ }) ở sau chữ each, đồng thời thay dấu + (+ là phép tính add), bằng hàm Sum() trong M language.
+
+(2) Cộng 3 cột lại với nhau và đặt tên là "Total Salary".
+(3) Cần Multiply cột Bonus và Total Salary
+Replace null value with 0
+và đặt tên cột làm Maximum Bonus
+(3) Tổng cộng 2 cột trên Total Salary + Maximum
+(4) Top 20 người lương thưởng cao nhất = TOP danh sách 20 item từ trên xuống của danh sách đã được sắp xếp giảm dần.
+- Sort Desccending cột Total Compensation
+- Keep top row > "20"
+- Cuối cùng là làm tròn số cho dễ nhìn, chọn các cột > Transfrom > Rounding > Round... > Decimal places = 0
+
+-------------------------------------------------------------------
+BÀI TẬP 26: FILTER (And() & Or())
+26. Filter.xlsx
+Yêu cầu:
+(1) Lọc ra những nhân viên ở vị trí "manager"
+(2) Lọc ra những nhân viên manager có lương từ 80.000
+(3) Lọc ra những nhân viên thuộc 2 phòng ban Management và Marketing, loại trừ những vị trí Assistant
+
+Làm:
+(1) Filter > Containt > "Manager"
+Kiểm tra lại sẽ có 1 vị trí "manager" không được filter, do Power Query đang phân biệt in hoa in thường.
+Chèn thêm 1 bước Upper hoặc Capitalize
+(2) chuyển sang tab Advanced khi Filter, 
+    Position contains                    Manager
+And Salary   is greater than or equal to 80000
+(3) Có thể tách ra làm 2 filter ở 2 cột Department và Position.
+Hoặc có thể dùng dấu () để can thiệp M language:
+each ([Department]= "Management" or [Department]="Marketing") and not Text.Contains([Position],"Assistant")
+
+
+-------------------------------------------------------------------
+BÀI TẬP 27: CHALLENGE: tìm lỗi FILTER
+27. FilterChallenge.xlsx
+Yêu cầu:
+- Filter các vị trí Assistant trong Power Query,
+- Load to Table,
+- Thêm dữ liệu Lilli G vào table và thử refesh all > giải thích tại sao Lilli G không được Filter?
+
+-------------------------------------------------------------------
+BÀI TẬP 28: BẪY Change Type và BẪY Remove Columns
+28. ChangeType_Trap.xlsx
+- Luôn đặt Change Type ở bước cuối cùng
+- Thay vì Remove những cột không cần, thì hãy chọn những cột cần giữ lại và Remove Other Columns
+
+Yêu cầu:
+Tạo Query lấy 2 cột Department & Position
+(1) Tự động và xóa đi những cột không dùng tới
+(2) Sau đó thử rename những cột không dùng tới: Employee, rồi sửa tới cột Salary
+(3) Refesh all sẽ nhận thông báo lỗi và tìm cách xử lý
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
