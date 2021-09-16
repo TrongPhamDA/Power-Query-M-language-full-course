@@ -12,6 +12,7 @@ Bài tập:
 - Thống kê nhanh (pivot)
 
 --
+
 Thành quả đạt được:
 
 - Có thể tương tác được với khối lượng data lớn
@@ -21,12 +22,15 @@ Thành quả đạt được:
 - Tận dụng tính năng automatic làm việc khi có dữ liệu được cập nhật
 - Và cuối cùng, bạn sẽ nhận được 1 niềm vui
 </b>
-"phải chi mình biết cái này sớm!"
+"phải chi mình biết cái này sớm!"</b></b>
+
+</b>
 
 --
+
 Giáo án được thiết kế bởi Trọng, Phạm DA</b>
 </b>
-** data là giả, là mô phỏng - dumydata,</b>
+* data là giả, là mô phỏng - dumydata,</b>
 không sử dụng data cho mục đích khác ngoài mục đích học tập.</b>
 </b>
 Liên hệ học trực tiếp: 0349816784
