@@ -1,5 +1,5 @@
 # Power Query sơ lược - ngày train 2021.09.16
-Link: https://github.com/TrongPhamDA/Power-Query-M-language-full-course/tree/main/free-Power%20Query%202021.09.16
+Link tải bài tập (file nén ZIP): https://github.com/TrongPhamDA/Power-Query-M-language-full-course/tree/main/free-Power%20Query%202021.09.16
 
 Bài tập:
 - Tổng hợp data từ nhiều file (append / combine)
